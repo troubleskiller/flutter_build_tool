@@ -1,4 +1,5 @@
 @echo off
+chcp 65001 >nul 2>&1
 setlocal enabledelayedexpansion
 
 :: Unity Build Script for Windows

@@ -1,56 +1,57 @@
 @echo off
+chcp 65001 >nul 2>&1
 setlocal enabledelayedexpansion
 
-:: Docker启动脚本 - 自动拉取并配置PostgreSQL和Redis
+:: Docker Start Script - Auto pull and configure PostgreSQL and Redis
 
 echo ================================================
-echo  Flutter Unity Build Tool - Docker一键启动
+echo  Flutter Unity Build Tool - Docker Manager
 echo ================================================
 echo.
 
-:: 检查Docker是否安装
+:: Check Docker installation
 where docker >nul 2>&1
 if %errorlevel% neq 0 (
-    echo [错误] Docker未安装！
+    echo [ERROR] Docker is not installed!
     echo.
-    echo 请先安装Docker Desktop:
+    echo Please install Docker Desktop first:
     echo https://www.docker.com/products/docker-desktop/
     echo.
     pause
     exit /b 1
 )
 
-:: 检查Docker是否运行
+:: Check if Docker is running
 docker info >nul 2>&1
 if %errorlevel% neq 0 (
-    echo [错误] Docker未运行！
-    echo 请启动Docker Desktop后重试
+    echo [ERROR] Docker is not running!
+    echo Please start Docker Desktop and try again
     pause
     exit /b 1
 )
 
-:: 检查.env文件
+:: Check .env file
 if not exist .env (
-    echo [信息] 创建环境配置文件...
+    echo [INFO] Creating environment configuration file...
     copy .env.docker .env >nul 2>&1
     echo.
-    echo [重要] 请编辑 .env 文件，配置你的Unity和Flutter路径
+    echo [IMPORTANT] Please edit .env file to configure your Unity and Flutter paths
     echo.
     notepad .env
     pause
 )
 
-:: 选择操作
-echo 请选择操作:
-echo 1. 首次安装并启动
-echo 2. 启动服务
-echo 3. 停止服务
-echo 4. 重启服务
-echo 5. 查看日志
-echo 6. 清理所有数据（危险）
-echo 7. 更新并重建
+:: Select operation
+echo Please select operation:
+echo 1. First installation and start
+echo 2. Start services
+echo 3. Stop services
+echo 4. Restart services
+echo 5. View logs
+echo 6. Clean all data (DANGEROUS)
+echo 7. Update and rebuild
 echo.
-set /p ACTION="请输入选项 (1-7): "
+set /p ACTION="Please enter option (1-7): "
 
 if "%ACTION%"=="1" goto install
 if "%ACTION%"=="2" goto start
@@ -63,90 +64,90 @@ goto :eof
 
 :install
 echo.
-echo [步骤1/5] 拉取Docker镜像...
+echo [Step 1/5] Pulling Docker images...
 docker-compose pull
 if %errorlevel% neq 0 (
-    echo [错误] 拉取镜像失败
+    echo [ERROR] Failed to pull images
     pause
     exit /b 1
 )
 
 echo.
-echo [步骤2/5] 构建应用镜像...
+echo [Step 2/5] Building application images...
 docker-compose build
 if %errorlevel% neq 0 (
-    echo [错误] 构建失败
+    echo [ERROR] Build failed
     pause
     exit /b 1
 )
 
 echo.
-echo [步骤3/5] 启动PostgreSQL和Redis...
+echo [Step 3/5] Starting PostgreSQL and Redis...
 docker-compose up -d postgres redis
 timeout /t 10 >nul
 
 echo.
-echo [步骤4/5] 初始化数据库...
+echo [Step 4/5] Initializing database...
 docker-compose exec -T backend npx prisma migrate deploy
 docker-compose exec -T backend npx prisma db seed
 
 echo.
-echo [步骤5/5] 启动所有服务...
+echo [Step 5/5] Starting all services...
 docker-compose up -d
 
 echo.
 echo ================================================
-echo  安装完成！
+echo  Installation Complete!
 echo ================================================
 echo.
-echo 前端地址: http://localhost:3000
-echo 后端地址: http://localhost:8000
-echo 数据库管理: http://localhost:8080
+echo Frontend: http://localhost:3000
+echo Backend: http://localhost:8000
+echo Database Admin: http://localhost:8080
 echo.
-echo 默认账号: admin / admin123
+echo Default account: admin / admin123
 echo.
-echo 使用 docker-start.bat 管理服务
+echo Use docker-start.bat to manage services
 echo ================================================
 pause
 goto :eof
 
 :start
 echo.
-echo [信息] 启动服务...
+echo [INFO] Starting services...
 docker-compose up -d
 echo.
-echo 服务已启动:
-echo - 前端: http://localhost:3000
-echo - 后端: http://localhost:8000
-echo - 数据库管理: http://localhost:8080
+echo Services started:
+echo - Frontend: http://localhost:3000
+echo - Backend: http://localhost:8000
+echo - Database Admin: http://localhost:8080
 pause
 goto :eof
 
 :stop
 echo.
-echo [信息] 停止服务...
+echo [INFO] Stopping services...
 docker-compose down
-echo 服务已停止
+echo Services stopped
 pause
 goto :eof
 
 :restart
 echo.
-echo [信息] 重启服务...
+echo [INFO] Restarting services...
 docker-compose restart
-echo 服务已重启
+echo Services restarted
 pause
 goto :eof
 
 :logs
 echo.
-echo 选择查看日志:
-echo 1. 所有服务
-echo 2. 后端
-echo 3. 前端
+echo Select logs to view:
+echo 1. All services
+echo 2. Backend
+echo 3. Frontend
 echo 4. PostgreSQL
 echo 5. Redis
-set /p LOG_CHOICE="请选择 (1-5): "
+set /p LOG_CHOICE="Please select (1-5): "
 
 if "%LOG_CHOICE%"=="1" docker-compose logs -f
 if "%LOG_CHOICE%"=="2" docker-compose logs -f backend
@@ -157,25 +158,25 @@ goto :eof
 
 :clean
 echo.
-echo [警告] 此操作将删除所有数据！
-set /p CONFIRM="确认删除? (yes/no): "
+echo [WARNING] This will delete all data!
+set /p CONFIRM="Confirm deletion? (yes/no): "
 if /i "%CONFIRM%"=="yes" (
     docker-compose down -v
-    echo 所有数据已清理
+    echo All data has been cleaned
 ) else (
-    echo 操作已取消
+    echo Operation cancelled
 )
 pause
 goto :eof
 
 :rebuild
 echo.
-echo [信息] 更新并重建服务...
+echo [INFO] Updating and rebuilding services...
 docker-compose down
 docker-compose pull
 docker-compose build --no-cache
 docker-compose up -d
-echo 服务已更新并重启
+echo Services have been updated and restarted
 pause
 goto :eof
 
