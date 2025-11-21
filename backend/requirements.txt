@@ -1,0 +1,46 @@
+# Core
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+python-multipart==0.0.6
+
+# Database
+sqlalchemy==2.0.23
+alembic==1.12.1
+asyncpg==0.29.0
+psycopg2-binary==2.9.9
+
+# Redis & Celery
+redis==5.0.1
+celery==5.3.4
+flower==2.0.1
+
+# Authentication
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+python-dotenv==1.0.0
+
+# WebSocket
+python-socketio==5.10.0
+websockets==12.0
+
+# Git operations
+GitPython==3.1.40
+
+# Utilities
+pydantic==2.5.2
+pydantic-settings==2.1.0
+httpx==0.25.2
+aiofiles==23.2.1
+python-dateutil==2.8.2
+pytz==2023.3
+
+# Monitoring and logging
+loguru==0.7.2
+prometheus-client==0.19.0
+
+# Development
+pytest==7.4.3
+pytest-asyncio==0.21.1
+black==23.11.0
+flake8==6.1.0
+mypy==1.7.1
