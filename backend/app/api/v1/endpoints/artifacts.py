@@ -5,9 +5,9 @@ from sqlalchemy import select, desc
 from typing import List, Optional
 from datetime import datetime
 from pydantic import BaseModel
-from app.core.database import get_db
-from app.models.models import Artifact, Task
-from app.api.v1.endpoints.auth import get_current_active_user
+from backend.app.core.database import get_db
+from backend.app.models.models import Artifact, Task
+from backend.app.api.v1.endpoints.auth import get_current_active_user
 from pathlib import Path
 from loguru import logger
 

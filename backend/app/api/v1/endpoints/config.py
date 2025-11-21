@@ -3,9 +3,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from typing import List
 from pydantic import BaseModel
-from app.core.database import get_db
-from app.models.models import RepoConfig, CleanupPolicy
-from app.api.v1.endpoints.auth import get_admin_user
+from backend.app.core.database import get_db
+from backend.app.models.models import RepoConfig, CleanupPolicy
+from backend.app.api.v1.endpoints.auth import get_admin_user
 from datetime import datetime
 from loguru import logger
 import git

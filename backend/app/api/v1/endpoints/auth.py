@@ -7,9 +7,9 @@ from typing import Optional
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 from pydantic import BaseModel, EmailStr
-from app.core.database import get_db
-from app.core.config import settings
-from app.models.models import User, UserRole
+from backend.app.core.database import get_db
+from backend.app.core.config import settings
+from backend.app.models.models import User, UserRole
 from loguru import logger
 
 router = APIRouter()

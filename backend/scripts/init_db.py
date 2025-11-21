@@ -10,9 +10,9 @@ from pathlib import Path
 sys.path.append(str(Path(__file__).parent.parent.parent))
 
 from sqlalchemy.ext.asyncio import create_async_engine
-from app.core.config import settings
-from app.core.database import Base
-from app.models.models import *  # 导入所有模型
+from backend.app.core.config import settings
+from backend.app.core.database import Base
+from backend.app.models.models import *  # 导入所有模型
 from loguru import logger
 
 async def init_database():

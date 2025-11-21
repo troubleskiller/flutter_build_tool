@@ -4,8 +4,8 @@ from sqlalchemy import select, func, and_
 from typing import Optional
 from datetime import datetime, timedelta
 from pydantic import BaseModel
-from app.core.database import get_db
-from app.models.models import Task, TaskStatus, Statistics
+from backend.app.core.database import get_db
+from backend.app.models.models import Task, TaskStatus, Statistics
 from loguru import logger
 
 router = APIRouter()

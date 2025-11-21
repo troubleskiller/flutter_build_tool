@@ -5,12 +5,12 @@ from typing import List, Optional
 from datetime import datetime
 import uuid
 from pydantic import BaseModel
-from app.core.database import get_db
-from app.models.models import Task, TaskStatus, TaskStage, User
-from app.api.v1.endpoints.auth import get_current_active_user
-from app.services.task_manager import TaskManager
-from app.services.build_executor import BuildExecutor
-from app.core.websocket import manager as ws_manager
+from backend.app.core.database import get_db
+from backend.app.models.models import Task, TaskStatus, TaskStage, User
+from backend.app.api.v1.endpoints.auth import get_current_active_user
+from backend.app.services.task_manager import TaskManager
+from backend.app.services.build_executor import BuildExecutor
+from backend.app.core.websocket import manager as ws_manager
 from loguru import logger
 
 router = APIRouter()
