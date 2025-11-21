@@ -1,0 +1,205 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  ADMIN
+  USER
+}
+
+enum TaskStatus {
+  PENDING
+  QUEUED
+  RUNNING
+  SUCCESS
+  FAILED
+  CANCELLED
+}
+
+enum TaskStage {
+  UNITY_FETCH
+  UNITY_BUILD
+  FLUTTER_FETCH
+  FLUTTER_BUILD
+  ARTIFACT_SAVE
+}
+
+model User {
+  id             Int        @id @default(autoincrement())
+  username       String     @unique
+  email          String     @unique
+  hashedPassword String
+  role           UserRole   @default(USER)
+  isActive       Boolean    @default(true)
+  createdAt      DateTime   @default(now())
+  lastLogin      DateTime?
+
+  tasks          Task[]
+  auditLogs      AuditLog[]
+
+  @@map("users")
+}
+
+model Task {
+  id               Int         @id @default(autoincrement())
+  taskUuid         String      @unique @default(uuid())
+  status           TaskStatus  @default(PENDING)
+  currentStage     TaskStage?
+
+  initiatorId      Int?
+  initiator        User?       @relation(fields: [initiatorId], references: [id])
+
+  unityBranch      String
+  flutterBranch    String
+  unityCommit      String?
+  flutterCommit    String?
+
+  unityArgs        Json        @default("{}")
+  flutterArgs      Json        @default("{}")
+
+  createdAt        DateTime    @default(now())
+  startedAt        DateTime?
+  completedAt      DateTime?
+
+  unityFetchDuration    Float?
+  unityBuildDuration    Float?
+  flutterFetchDuration  Float?
+  flutterBuildDuration  Float?
+  totalDuration         Float?
+
+  logFilePath      String?
+  errorMessage     String?
+
+  progress         Int         @default(0)
+  progressMessage  String?
+
+  artifact         Artifact?
+  stageLogs        StageLog[]
+
+  @@map("tasks")
+}
+
+model Artifact {
+  id              Int       @id @default(autoincrement())
+  taskId          Int       @unique
+  task            Task      @relation(fields: [taskId], references: [id])
+
+  fileName        String
+  filePath        String
+  fileSize        Int
+  checksum        String?
+  downloadUrl     String
+
+  createdAt       DateTime  @default(now())
+  downloadCount   Int       @default(0)
+  lastDownloadedAt DateTime?
+  isArchived      Boolean   @default(false)
+  archivedAt      DateTime?
+
+  @@map("artifacts")
+}
+
+model StageLog {
+  id            Int        @id @default(autoincrement())
+  taskId        Int
+  task          Task       @relation(fields: [taskId], references: [id])
+
+  stage         TaskStage
+  logContent    String?
+  startedAt     DateTime?
+  completedAt   DateTime?
+  success       Boolean?
+  errorMessage  String?
+
+  @@map("stage_logs")
+}
+
+model RepoConfig {
+  id              Int       @id @default(autoincrement())
+  repoType        String    @unique // "unity" or "flutter"
+  repoUrl         String
+  repoPath        String
+  defaultBranch   String    @default("main")
+
+  authType        String?   // "ssh", "https", "token"
+  authCredentials String?   // encrypted credentials
+
+  useMirror       Boolean   @default(false)
+  mirrorUrl       String?
+
+  updatedAt       DateTime  @updatedAt
+
+  @@map("repo_configs")
+}
+
+model CleanupPolicy {
+  id                 Int       @id @default(autoincrement())
+  policyName         String    @unique
+  isActive           Boolean   @default(true)
+
+  retentionDays      Int       @default(30)
+  retentionCount     Int       @default(100)
+
+  cleanFailedTasks   Boolean   @default(false)
+  archiveBeforeDelete Boolean   @default(true)
+  archivePath        String?
+
+  scheduleCron       String?
+  lastRunAt          DateTime?
+  nextRunAt          DateTime?
+
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  @@map("cleanup_policies")
+}
+
+model AuditLog {
+  id            Int       @id @default(autoincrement())
+  userId        Int?
+  user          User?     @relation(fields: [userId], references: [id])
+
+  action        String
+  resourceType  String?
+  resourceId    String?
+  payload       Json?
+  result        String?
+  ipAddress     String?
+  userAgent     String?
+
+  timestamp     DateTime  @default(now())
+
+  @@map("audit_logs")
+}
+
+model Statistics {
+  id              Int       @id @default(autoincrement())
+  date            DateTime
+
+  dimensionType   String?   // "branch", "user", "date"
+  dimensionValue  String?
+
+  successCount    Int       @default(0)
+  failedCount     Int       @default(0)
+  totalCount      Int       @default(0)
+  avgDuration     Float?
+  minDuration     Float?
+  maxDuration     Float?
+
+  unitySuccessRate   Float?
+  flutterSuccessRate Float?
+
+  lastTaskAt      DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@map("statistics")
+}
